@@ -11,10 +11,11 @@ if (!databaseUrl) {
   console.error("❌ DATABASE_URL no está definida");
   console.log("\n💡 Solución:");
   console.log("   1. Crea un archivo .env en la raíz del proyecto");
-  console.log("   2. Agrega la siguiente línea:");
-  console.log('   DATABASE_URL="postgresql://postgres:grespost@localhost:5432/casahub?schema=public"');
+  console.log("   2. Agrega la siguiente línea (reemplaza 'your-password' con tu contraseña real):");
+  console.log('   DATABASE_URL="postgresql://postgres:your-password@localhost:5432/casahub?schema=public"');
   console.log("\n   O copia el archivo env.example:");
   console.log("   cp env.example .env");
+  console.log("   Luego edita .env y reemplaza 'your-password' con tu contraseña real");
   process.exit(1);
 }
 

@@ -17,10 +17,11 @@ if (existsSync(envExamplePath)) {
   // Contenido por defecto
   envContent = `# Base de datos
 # Para desarrollo local (sin Docker)
-DATABASE_URL="postgresql://postgres:grespost@localhost:5432/casahub?schema=public"
+# IMPORTANTE: Reemplaza 'your-password' con tu contraseña real
+DATABASE_URL="postgresql://postgres:your-password@localhost:5432/casahub?schema=public"
 
-# Para Docker Compose (se configura automáticamente)
-# DATABASE_URL="postgresql://postgres:grespost@db:5432/casahub?schema=public"
+# Para Docker Compose (usa variables de entorno o archivo .env)
+# DATABASE_URL="postgresql://postgres:your-password@db:5432/casahub?schema=public"
 
 # Entorno
 NODE_ENV="development"
@@ -32,6 +33,10 @@ NEXTAUTH_URL="http://localhost:3000"
 
 # Opcional: Variables adicionales de la aplicación
 # APP_URL="http://localhost:3000"
+
+# Contraseña para el usuario administrador inicial (solo para seed)
+# IMPORTANTE: Cambia esta contraseña después del primer login en producción
+# ADMIN_PASSWORD="your-secure-admin-password"
 `;
 }
 
@@ -52,8 +57,9 @@ if (existsSync(envPath)) {
   } else {
     console.log("⚠️  DATABASE_URL no está en .env");
     console.log("💡 Agregando DATABASE_URL al archivo .env...");
+    console.log("⚠️  IMPORTANTE: Reemplaza 'your-password' con tu contraseña real");
     
-    const updatedContent = currentContent + "\n" + 'DATABASE_URL="postgresql://postgres:grespost@localhost:5432/casahub?schema=public"';
+    const updatedContent = currentContent + "\n" + 'DATABASE_URL="postgresql://postgres:your-password@localhost:5432/casahub?schema=public"';
     writeFileSync(envPath, updatedContent);
     console.log("✅ DATABASE_URL agregada");
   }

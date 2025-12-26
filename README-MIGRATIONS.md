@@ -110,7 +110,8 @@ npm start
 Copia `env.example` a `.env` y configura:
 
 ```env
-DATABASE_URL="postgresql://postgres:grespost@localhost:5432/casahub?schema=public"
+# IMPORTANTE: Reemplaza 'your-password' con tu contraseña real
+DATABASE_URL="postgresql://postgres:your-password@localhost:5432/casahub?schema=public"
 NODE_ENV="development"
 NEXTAUTH_SECRET="tu-clave-secreta-aqui"
 NEXTAUTH_URL="http://localhost:3000"

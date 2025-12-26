@@ -31,7 +31,10 @@ async function main() {
   console.log("Roles creados:", { adminRole, userRole });
 
   // Crear usuario administrador por defecto
-  const hashedPassword = await bcrypt.hash("admin123", 10);
+  // IMPORTANTE: En producción, usa la variable de entorno ADMIN_PASSWORD
+  // Para desarrollo local, puedes usar el valor por defecto (cambiar después del primer login)
+  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const hashedPassword = await bcrypt.hash(adminPassword, 10);
   
   const adminUser = await prisma.user.upsert({
     where: { email: "admin@casahub.local" },

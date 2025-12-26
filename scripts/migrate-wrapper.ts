@@ -21,7 +21,10 @@ if (!command) {
 if (!process.env.DATABASE_URL) {
   console.error("❌ DATABASE_URL no está definida");
   console.log("\n💡 Asegúrate de tener un archivo .env con:");
-  console.log('   DATABASE_URL="postgresql://postgres:grespost@localhost:5432/casahub?schema=public"');
+  console.log('   DATABASE_URL="postgresql://postgres:your-password@localhost:5432/casahub?schema=public"');
+  console.log("   (Reemplaza 'your-password' con tu contraseña real)");
+  console.log("\n   O copia env.example:");
+  console.log("   cp env.example .env");
   process.exit(1);
 }
 
