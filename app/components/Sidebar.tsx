@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "./signout-action";
@@ -12,11 +13,25 @@ interface SidebarProps {
   } | null;
 }
 
+interface MenuItem {
+  name: string;
+  href?: string;
+  icon: React.ReactNode;
+  adminOnly?: boolean;
+  subItems?: {
+    name: string;
+    href: string;
+    icon?: React.ReactNode;
+  }[];
+}
+
 export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const isAdmin = user?.roles?.some((role) => role.name === "ADMIN") || false;
+  
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       name: "Dashboard",
       href: "/app",
@@ -28,30 +43,25 @@ export default function Sidebar({ user }: SidebarProps) {
     },
     {
       name: "Cocina",
-      href: "/app/cocina",
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
       ),
-    },
-    {
-      name: "Inventario Cocina",
-      href: "/app/cocina/inventario",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-      ),
-    },
-    {
-      name: "Recetas",
-      href: "/app/cocina/recetas",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-        </svg>
-      ),
+      subItems: [
+        {
+          name: "Dashboard",
+          href: "/app/cocina",
+        },
+        {
+          name: "Inventario",
+          href: "/app/cocina/inventario",
+        },
+        {
+          name: "Recetas",
+          href: "/app/cocina/recetas",
+        },
+      ],
     },
     {
       name: "Gestión de Usuarios",
@@ -74,7 +84,7 @@ export default function Sidebar({ user }: SidebarProps) {
       adminOnly: true,
     },
     {
-      name: "Inventario",
+      name: "Inventario General",
       href: "/app/inventario",
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,6 +112,19 @@ export default function Sidebar({ user }: SidebarProps) {
     },
   ];
 
+  // Abrir menús automáticamente si la ruta actual es un subitem
+  useEffect(() => {
+    menuItems.forEach(item => {
+      if (item.subItems?.some(sub => pathname?.startsWith(sub.href))) {
+        setOpenMenus(prev => ({ ...prev, [item.name]: true }));
+      }
+    });
+  }, [pathname]);
+
+  const toggleMenu = (name: string) => {
+    setOpenMenus(prev => ({ ...prev, [name]: !prev[name] }));
+  };
+
   const filteredMenuItems = menuItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
@@ -121,20 +144,71 @@ export default function Sidebar({ user }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
         {filteredMenuItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/app" && pathname?.startsWith(item.href));
+          const hasSubItems = item.subItems && item.subItems.length > 0;
+          const isOpen = openMenus[item.name];
+          const isActive = item.href 
+            ? (pathname === item.href || (item.href !== "/app" && pathname?.startsWith(item.href)))
+            : item.subItems?.some(sub => pathname?.startsWith(sub.href));
+
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive
-                  ? "bg-indigo-50 text-indigo-700 font-medium"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              {item.icon}
-              <span>{item.name}</span>
-            </Link>
+            <div key={item.name} className="space-y-1">
+              {item.href ? (
+                <Link
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700 font-medium"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {item.icon}
+                  <span>{item.name}</span>
+                </Link>
+              ) : (
+                <button
+                  onClick={() => toggleMenu(item.name)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700 font-medium"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {item.icon}
+                    <span>{item.name}</span>
+                  </div>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              )}
+
+              {hasSubItems && isOpen && (
+                <div className="ml-9 space-y-1">
+                  {item.subItems!.map((sub) => {
+                    const isSubActive = pathname === sub.href;
+                    return (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        className={`block px-4 py-2 text-sm rounded-lg transition-colors ${
+                          isSubActive
+                            ? "text-indigo-700 font-medium bg-indigo-50/50"
+                            : "text-gray-600 hover:text-indigo-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        {sub.name}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
@@ -160,4 +234,3 @@ export default function Sidebar({ user }: SidebarProps) {
     </div>
   );
 }
-

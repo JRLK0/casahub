@@ -1,6 +1,16 @@
 import { getKitchenAlerts } from "@/lib/kitchen-actions";
 import Link from "next/link";
 
+// Función helper para formatear fechas de manera consistente
+function formatDate(date: Date | string | null): string {
+  if (!date) return '-';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${day}/${month}/${year}`;
+}
+
 export default async function CocinaDashboard() {
   const result = await getKitchenAlerts();
   
@@ -65,7 +75,7 @@ export default async function CocinaDashboard() {
                       <p className="text-xs text-gray-500">{p.location.name}</p>
                     </div>
                     <span className="text-red-600 font-medium">
-                      {p.expiryDate ? new Date(p.expiryDate).toLocaleDateString() : '-'}
+                      {formatDate(p.expiryDate)}
                     </span>
                   </li>
                 ))}
@@ -123,7 +133,7 @@ export default async function CocinaDashboard() {
                       <p className="text-xs text-gray-500">{p.location.name}</p>
                     </div>
                     <span className="text-blue-600 font-medium">
-                      {p.openedAt ? Math.floor((today.getTime() - new Date(p.openedAt).getTime()) / (1000 * 60 * 60 * 24)) : '-'} días
+                      {p.openedAt ? Math.floor((new Date().getTime() - new Date(p.openedAt).getTime()) / (1000 * 60 * 60 * 24)) : '-'} días
                     </span>
                   </li>
                 ))}

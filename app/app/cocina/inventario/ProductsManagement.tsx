@@ -29,6 +29,16 @@ interface ProductsManagementProps {
   categories: { id: string, name: string }[];
 }
 
+// Función helper para formatear fechas de manera consistente
+function formatDate(date: Date | string | null): string {
+  if (!date) return '';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${day}/${month}/${year}`;
+}
+
 export default function ProductsManagement({ 
   initialProducts, 
   locations, 
@@ -126,11 +136,11 @@ export default function ProductsManagement({
                   <div className="space-y-1">
                     {p.expiryDate && (
                       <p className={`text-[11px] ${new Date(p.expiryDate) < new Date() ? 'text-red-600' : 'text-gray-500'}`}>
-                        Cad: {new Date(p.expiryDate).toLocaleDateString()}
+                        Cad: {formatDate(p.expiryDate)}
                       </p>
                     )}
                     {p.openedAt ? (
-                      <p className="text-[11px] text-blue-600">Abierto: {new Date(p.openedAt).toLocaleDateString()}</p>
+                      <p className="text-[11px] text-blue-600">Abierto: {formatDate(p.openedAt)}</p>
                     ) : (
                       <button 
                         onClick={() => handleMarkOpened(p.id)}
