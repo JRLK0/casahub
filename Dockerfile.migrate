@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+COPY prisma.config.ts ./
+COPY tsconfig.json ./
+
+# Instalar dependencias
+RUN npm ci
+
+# Copiar código de migraciones y scripts
+COPY prisma ./prisma
+COPY scripts ./scripts
+
+# Generar Prisma Client
+RUN npx prisma generate
+
+# El comando se pasa desde docker-compose
+CMD ["sh", "-c", "tsx scripts/migrate-wait-db.ts && tsx scripts/migrate-prod.ts"]
+

@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  image         String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  roles         UserRole[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  users       UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model ProductLocation {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  icon      String?
+  products  Product[]
+
+  @@map("product_locations")
+}
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  products  Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  quantity    Float            @default(1)
+  unit        String           @default("unidad")
+  locationId  String
+  categoryId  String?
+  expiryDate  DateTime?
+  openedAt    DateTime?
+  minStock    Float?
+  notes       String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  location    ProductLocation  @relation(fields: [locationId], references: [id])
+  category    ProductCategory? @relation(fields: [categoryId], references: [id])
+  ingredients RecipeIngredient[]
+
+  @@map("products")
+}
+
+model Recipe {
+  id           String             @id @default(cuid())
+  name         String
+  description  String?
+  instructions String?
+  servings     Int?
+  prepTime     Int?
+  cookTime     Int?
+  imageUrl     String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  ingredients  RecipeIngredient[]
+
+  @@map("recipes")
+}
+
+model RecipeIngredient {
+  id        String   @id @default(cuid())
+  recipeId  String
+  productId String?
+  name      String
+  quantity  Float
+  unit      String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id])
+
+  @@map("recipe_ingredients")
+}

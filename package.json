@@ -3,19 +3,45 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "tsx scripts/migrate-dev.ts && next dev",
+    "build": "tsx scripts/migrate-check.ts && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate": "tsx scripts/migrate-wrapper.ts migrate dev",
+    "migrate:deploy": "tsx scripts/migrate-wrapper.ts migrate deploy",
+    "migrate:status": "tsx scripts/migrate-wrapper.ts migrate status",
+    "migrate:prod": "tsx scripts/migrate-prod.ts",
+    "migrate:wait": "tsx scripts/migrate-wait-db.ts",
+    "migrate:prod:seed": "tsx scripts/migrate-and-seed.ts",
+    "db:generate": "prisma generate",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:build": "docker-compose build"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "bcryptjs": "^3.0.3",
     "next": "16.1.1",
+    "next-auth": "^5.0.0-beta.30",
+    "pg": "^8.16.3",
+    "prisma": "^7.2.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "tsx": "^4.21.0",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
+    "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
